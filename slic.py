@@ -45,7 +45,7 @@ class SLIC(object):
         img = self.data
         (h, w, d) = img.shape
         # 计算超像素S以及相关系数矩阵Q
-        segments = slic(img, n_segments=self.n_segments, compactness=self.compactness, max_iter=self.max_iter,
+        segments = slic(img, n_segments=self.n_segments, compactness=self.compactness, max_num_iter=self.max_iter,
                         convert2lab=False, sigma=self.sigma, enforce_connectivity=True,
                         min_size_factor=self.min_size_factor, max_size_factor=self.max_size_factor,
                         slic_zero=False, start_label=1)

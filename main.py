@@ -53,7 +53,15 @@ elif DATASET == 'salinas':
     class_count = 16  # 样本类别数
     train_ratio = 0.002  # 训练集比例。注意，训练集为按照‘每类’随机选取
     val_ratio = 0.002  # 验证集比例
-
+elif DATASET == 'HongHU':
+    data_mat = sio.loadmat('./HyperImage_data/HongHU/WHU_Hi_HongHu.mat')
+    data = data_mat['WHU_Hi_HongHu']
+    gt_mat = sio.loadmat('./HyperImage_data/HongHU/WHU_Hi_HongHu_gt.mat')
+    gt = gt_mat['WHU_Hi_HongHu_gt']
+    dataset_name = "honghu_"  # 数据集名称
+    class_count = 16  # 样本类别数
+    train_ratio = 0.002  # 训练集比例。注意，训练集为按照‘每类’随机选取
+    val_ratio = 0.002  # 验证集比例
 # ##参数预设
 
 sample_type = 'ratio'  # ratio or same
@@ -545,7 +553,7 @@ for curr_seed in Seed_List:
                 if valloss < best_loss:
                     best_loss = valloss
                     best_OA = valOA
-                    torch.save(net.state_dict(), "model\\best_model.pt")
+                    torch.save(net.state_dict(), "model/best_model.pt")
                     print('save model...')
             torch.cuda.empty_cache()
             net.train()
@@ -560,7 +568,7 @@ for curr_seed in Seed_List:
 
     print('Test start')
     with torch.no_grad():
-        net.load_state_dict(torch.load("model\\best_model.pt"))
+        net.load_state_dict(torch.load("model/best_model.pt"))
         net.eval()
         tic3 = time.time()
         out, _, _ = net(S, A, A2, A3, net_input)
