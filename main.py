@@ -11,69 +11,7 @@ import slic
 import spectral as spy
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-torch.cuda.empty_cache()
-OA_ALL = []
-AA_ALL = []
-KPP_ALL = []
-AVG_ALL = []
-Train_Time_ALL = []
-Test_Time_ALL = []
-Seed_List = [1330, 1331, 1332, 1333, 1334,
-             1335, 1336, 1337, 1338, 1339]  # 随机种子点
-DATASET = 'indian'
-
-# ##数据集预设
-
-if DATASET == 'paviaU':
-    data_mat = sio.loadmat('./HyperImage_data/paviaU/PaviaU.mat')
-    data = data_mat['paviaU']
-    gt_mat = sio.loadmat('./HyperImage_data/paviaU/PaviaU_gt.mat')
-    gt = gt_mat['paviaU_gt']
-    dataset_name = "paviaU_"  # 数据集名称
-    class_count = 9  # 样本类别数
-    train_ratio = 0.002  # 训练集比例。注意，训练集为按照‘每类’随机选取
-    val_ratio = 0.002  # 验证集比例
-elif DATASET == 'indian':
-    data_mat = sio.loadmat(
-        './HyperImage_data/indian/Indian_pines_corrected.mat')
-    data = data_mat['indian_pines_corrected']
-    gt_mat = sio.loadmat('./HyperImage_data/indian/Indian_pines_gt.mat')
-    gt = gt_mat['indian_pines_gt']
-    dataset_name = "indian_"  # 数据集名称
-    class_count = 16  # 样本类别数
-    train_ratio = 0.02  # 训练集比例。注意，训练集为按照‘每类’随机选取
-    val_ratio = 0.02  # 验证集比例
-elif DATASET == 'salinas':
-    data_mat = sio.loadmat('./HyperImage_data/Salinas/Salinas_corrected.mat')
-    data = data_mat['salinas_corrected']
-    gt_mat = sio.loadmat('./HyperImage_data/Salinas/Salinas_gt.mat')
-    gt = gt_mat['salinas_gt']
-    dataset_name = "salinas_"  # 数据集名称
-    class_count = 16  # 样本类别数
-    train_ratio = 0.002  # 训练集比例。注意，训练集为按照‘每类’随机选取
-    val_ratio = 0.002  # 验证集比例
-elif DATASET == 'HongHU':
-    data_mat = sio.loadmat('./HyperImage_data/HongHU/WHU_Hi_HongHu.mat')
-    data = data_mat['WHU_Hi_HongHu']
-    gt_mat = sio.loadmat('./HyperImage_data/HongHU/WHU_Hi_HongHu_gt.mat')
-    gt = gt_mat['WHU_Hi_HongHu_gt']
-    dataset_name = "honghu_"  # 数据集名称
-    class_count = 16  # 样本类别数
-    train_ratio = 0.002  # 训练集比例。注意，训练集为按照‘每类’随机选取
-    val_ratio = 0.002  # 验证集比例
-# ##参数预设
-
-sample_type = 'ratio'  # ratio or same
-train_samples_per_class = 10  # 当定义为每类样本个数时,则该参数更改为训练样本数
-pca_bands = 3
-learning_rate = 5e-4  # 学习率
-GCN_nhid = 64  # GCN隐藏层通道数
-CNN_nhid = 64  # CNN隐藏层通道数
-max_epoch = 500  # 迭代次数
-superpixel_scale = 100  # 超像素参数
-orig_data = data  # 原始数据data
-height, width, bands = data.shape  # 原始高光谱数据的三个维度
+seed = 100
 
 
 def GT_To_One_Hot(n_gt, n_class_count):  # 转换为 one-hot 形式
@@ -151,9 +89,86 @@ def Draw_Classification_Map(label, name: str, scale: float = 4.0, dpi: int = 400
     pass
 
 
+
+torch.cuda.empty_cache()
+OA_ALL = []
+AA_ALL = []
+KPP_ALL = []
+AVG_ALL = []
+Train_Time_ALL = []
+Test_Time_ALL = []
+DATASET = 'indian'
+
+# ##数据集预设
+
+if DATASET == 'paviaU':
+    data_mat = sio.loadmat('./HyperImage_data/paviaU/PaviaU.mat')
+    data = data_mat['paviaU']
+    gt_mat = sio.loadmat('./HyperImage_data/paviaU/PaviaU_gt.mat')
+    gt = gt_mat['paviaU_gt']
+    dataset_name = "paviaU_"  # 数据集名称
+    class_count = 9  # 样本类别数
+    train_ratio = 0.002  # 训练集比例。注意，训练集为按照‘每类’随机选取
+    val_ratio = 0.002  # 验证集比例
+elif DATASET == 'indian':
+    data_mat = sio.loadmat(
+        './HyperImage_data/indian/Indian_pines_corrected.mat')
+    data = data_mat['indian_pines_corrected']
+    gt_mat = sio.loadmat('./HyperImage_data/indian/Indian_pines_gt.mat')
+    gt = gt_mat['indian_pines_gt']
+    dataset_name = "indian_"  # 数据集名称
+    class_count = 16  # 样本类别数
+    train_ratio = 0.02  # 训练集比例。注意，训练集为按照‘每类’随机选取
+    val_ratio = 0.02  # 验证集比例
+elif DATASET == 'salinas':
+    data_mat = sio.loadmat('./HyperImage_data/Salinas/Salinas_corrected.mat')
+    data = data_mat['salinas_corrected']
+    gt_mat = sio.loadmat('./HyperImage_data/Salinas/Salinas_gt.mat')
+    gt = gt_mat['salinas_gt']
+    dataset_name = "salinas_"  # 数据集名称
+    class_count = 16  # 样本类别数
+    train_ratio = 0.002  # 训练集比例。注意，训练集为按照‘每类’随机选取
+    val_ratio = 0.002  # 验证集比例
+elif DATASET == 'HongHU':
+    data_mat = sio.loadmat('./HyperImage_data/HongHU/WHU_Hi_HongHu.mat')
+    data = data_mat['WHU_Hi_HongHu']
+    gt_mat = sio.loadmat('./HyperImage_data/HongHU/WHU_Hi_HongHu_gt.mat')
+    gt = gt_mat['WHU_Hi_HongHu_gt']
+    dataset_name = "honghu_"  # 数据集名称
+    class_count = 16  # 样本类别数
+    train_ratio = 0.002  # 训练集比例。注意，训练集为按照‘每类’随机选取
+    val_ratio = 0.002  # 验证集比例
+# ##参数预设
+
+
+
+
+
+
+sample_type = 'ratio'  # ratio or same
+train_samples_per_class = 10  # 当定义为每类样本个数时,则该参数更改为训练样本数
+pca_bands = 3
+learning_rate = 5e-4  # 学习率
+GCN_nhid = 64  # GCN隐藏层通道数
+CNN_nhid = 64  # CNN隐藏层通道数
+max_epoch = 500  # 迭代次数
+superpixel_scale = 100  # 超像素参数
+orig_data = data  # 原始数据data
+height, width, bands = data.shape  # 原始高光谱数据的三个维度
+
+
+if sample_type == 'cross_validation':
+    train_ratio = 0.95
+    val_ratio = 0.05
+    K=5
+    n=0
+random.seed(seed)
+np.random.seed(seed)
+torch.cuda.manual_seed(seed)
+
 # Draw_Classification_Map(gt, "results\\" + dataset_name + '_gt')  # 绘制gt
 
-for curr_seed in Seed_List:
+def run():
 
     # ##数据预处理
 
@@ -185,7 +200,8 @@ for curr_seed in Seed_List:
                                      real_train_samples_per_class)  # 随机数数量 四舍五入(改为上取整)
             rand_real_idx_per_class_train = idx[rand_idx[0:real_train_samples_per_class]]
             train_rand_idx.append(rand_real_idx_per_class_train)  # 训练集样本目录
-
+        elif samples_type == 'cross_validation':
+            pass
         # print('class ', i, ' ', len(rand_idx))  # 输出每类选取样本数量
 
     # 根据采样目录选取数据组成训练集
@@ -215,16 +231,22 @@ for curr_seed in Seed_List:
             val_ratio * (len(test_data_index) + len(train_data_index)))  # 验证集数量
     elif sample_type == 'same':
         val_data_count = int(class_count)
-    val_data_index = random.sample(test_data_index, val_data_count)
-    val_data_index = set(val_data_index)
-
-    # 由于验证集为从测试集分裂出，所以测试集应减去验证集
-    test_data_index = test_data_index - val_data_index
+    
+    if sample_type != 'cross_validation':
+        val_data_index = random.sample(test_data_index, val_data_count)
+        val_data_index = set(val_data_index)
+        # 由于验证集为从测试集分裂出，所以测试集应减去验证集        
+        test_data_index = test_data_index - val_data_index
+    else:
+        test_data_index = list(sorted(list(test_data_index)))
+        cell = int(len(test_data_index)/K)
+        val_data_index = test_data_index[n*cell:(n+1)*cell]
+        test_data_index = set(test_data_index) - set(val_data_index)
 
     # 整理训练集、验证集、测试集
-    test_data_index = list(test_data_index)  # 测试集目录
-    train_data_index = list(train_data_index)  # 训练集目录
-    val_data_index = list(val_data_index)  # 验证集目录
+    test_data_index = list(sorted(list(test_data_index)))  # 测试集目录
+    train_data_index = list(sorted(list(train_data_index)))  # 训练集目录
+    val_data_index = list(sorted(list(val_data_index)))  # 验证集目录
 
     # 获取训练集的标签图
     train_samples_gt = np.zeros(gt_reshape.shape)
@@ -579,6 +601,8 @@ for curr_seed in Seed_List:
         testloss = compute_loss(out, test_samples_gt_onehot, test_label_mask)
         testOA = evaluate_performance(out, test_samples_gt, test_samples_gt_onehot,
                                       require_AA_KPP=True, printFlag=False)
+        evaluate_performance(out, val_samples_gt, val_samples_gt_onehot,
+                                      require_AA_KPP=True, printFlag=False)
         print("out test loss={}\t test OA={} ".format(testloss, testOA))
         print('OA=', np.array(OA_ALL))
         classification_map = torch.argmax(
@@ -593,33 +617,35 @@ for curr_seed in Seed_List:
     del net
 
 
-OA_ALL = np.array(OA_ALL)
-AA_ALL = np.array(AA_ALL)
-KPP_ALL = np.array(KPP_ALL)
-AVG_ALL = np.array(AVG_ALL)
-Train_Time_ALL = np.array(Train_Time_ALL)
-Test_Time_ALL = np.array(Test_Time_ALL)
+# OA_ALL = np.array(OA_ALL)
+# AA_ALL = np.array(AA_ALL)
+# KPP_ALL = np.array(KPP_ALL)
+# AVG_ALL = np.array(AVG_ALL)
+# Train_Time_ALL = np.array(Train_Time_ALL)
+# Test_Time_ALL = np.array(Test_Time_ALL)
 
-print(DATASET)
-print("\ntrain_ratio={}".format(train_ratio),
-      "\n==============================================================================")
-print('OA=', OA_ALL)
-print('OA=', np.mean(OA_ALL), '+-', np.std(OA_ALL))
-print('AA=', np.mean(AA_ALL), '+-', np.std(AA_ALL))
-print('Kpp=', np.mean(KPP_ALL), '+-', np.std(KPP_ALL))
-print('AVG=', np.mean(AVG_ALL, 0), '+-', np.std(AVG_ALL, 0))
-print("Average training time:{}".format(np.mean(Train_Time_ALL)))
-print("Average testing time:{}".format(np.mean(Test_Time_ALL)))
+# print(DATASET)
+# print("\ntrain_ratio={}".format(train_ratio),
+#       "\n==============================================================================")
+# print('OA=', OA_ALL)
+# print('OA=', np.mean(OA_ALL), '+-', np.std(OA_ALL))
+# print('AA=', np.mean(AA_ALL), '+-', np.std(AA_ALL))
+# print('Kpp=', np.mean(KPP_ALL), '+-', np.std(KPP_ALL))
+# print('AVG=', np.mean(AVG_ALL, 0), '+-', np.std(AVG_ALL, 0))
+# print("Average training time:{}".format(np.mean(Train_Time_ALL)))
+# print("Average testing time:{}".format(np.mean(Test_Time_ALL)))
 
-# 保存数据信息
-f = open('results\\' + dataset_name + '_results.txt', 'a+')
-str_results = '\n\n************************************************' \
-              + "\ntrain_ratio={}".format(train_ratio) \
-              + '\nOA=' + str(np.mean(OA_ALL)) + '+-' + str(np.std(OA_ALL)) \
-              + '\nAA=' + str(np.mean(AA_ALL)) + '+-' + str(np.std(AA_ALL)) \
-              + '\nKpp=' + str(np.mean(KPP_ALL)) + '+-' + str(np.std(KPP_ALL)) \
-              + '\nAVG=' + str(np.mean(AVG_ALL, 0)) + '+-' + str(np.std(AVG_ALL, 0)) \
-              + "\nAverage training time:{}".format(np.mean(Train_Time_ALL)) \
-              + "\nAverage testing time:{}".format(np.mean(Test_Time_ALL))
-f.write(str_results)
-f.close()
+# # 保存数据信息
+# f = open('results\\' + dataset_name + '_results.txt', 'a+')
+# str_results = '\n\n************************************************' \
+#               + "\ntrain_ratio={}".format(train_ratio) \
+#               + '\nOA=' + str(np.mean(OA_ALL)) + '+-' + str(np.std(OA_ALL)) \
+#               + '\nAA=' + str(np.mean(AA_ALL)) + '+-' + str(np.std(AA_ALL)) \
+#               + '\nKpp=' + str(np.mean(KPP_ALL)) + '+-' + str(np.std(KPP_ALL)) \
+#               + '\nAVG=' + str(np.mean(AVG_ALL, 0)) + '+-' + str(np.std(AVG_ALL, 0)) \
+#               + "\nAverage training time:{}".format(np.mean(Train_Time_ALL)) \
+#               + "\nAverage testing time:{}".format(np.mean(Test_Time_ALL))
+# f.write(str_results)
+# f.close()
+if __name__=="__main__":
+    run()
